@@ -662,7 +662,7 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
                 if (debug_Out)
                 {
                     sLog->outString("-------------------------------------------------");
-                    sLog->outString("AHBuyer: AHBot Has not enough money for bid; Needed: %u has: %u", bidprice, AHBotGetCurrentMoney());
+                    sLog->outString("AHBuyer: AHBot Has not enough money for bid; Needed: %u has: %lu", bidprice, AHBotGetCurrentMoney());
                     sLog->outString("-------------------------------------------------");
                 }
                 continue;
@@ -703,7 +703,7 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
                 if (debug_Out)
                 {
                     sLog->outString("-------------------------------------------------");
-                    sLog->outString("AHBuyer: AHBot Has not enough money for buyout; Needed: %u has: %u", auction->buyout, AHBotGetCurrentMoney());
+                    sLog->outString("AHBuyer: AHBot Has not enough money for buyout; Needed: %u has: %lu", auction->buyout, AHBotGetCurrentMoney());
                     sLog->outString("-------------------------------------------------");
                 }
                 continue;
@@ -1717,7 +1717,7 @@ void AuctionHouseBot::AHBotChangeMoney(int32 amount)
             currentGold += + amount;
     }
 
-    WorldDatabase.PExecute("INSERT INTO mod_auctionhousebot_gold (id, gold) values(%u, %u) ON DUPLICATE KEY UPDATE gold = %u", WalletID, currentGold, currentGold);
+    WorldDatabase.PExecute("INSERT INTO mod_auctionhousebot_gold (id, gold) values(%u, %lu) ON DUPLICATE KEY UPDATE gold = %lu", WalletID, currentGold, currentGold);
 }
 
 
@@ -1729,7 +1729,7 @@ bool AuctionHouseBot::AHBotHasEnoughMoney(uint32 amount)
 
 uint64 AuctionHouseBot::AHBotGetCurrentMoney()
 {
-    QueryResult querry = WorldDatabase.PQuery("SELECT gold FROM mod_auctionhousebot_gold WHERE id = '%u'", WalletID);
+    QueryResult querry = WorldDatabase.PQuery("SELECT gold FROM mod_auctionhousebot_gold WHERE id = '%lu'", WalletID);
     if (!querry || querry->GetRowCount() == 0)
     {
         return 0;
