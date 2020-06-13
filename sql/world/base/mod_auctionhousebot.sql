@@ -65,6 +65,16 @@ CREATE TABLE `mod_auctionhousebot` (
   PRIMARY KEY (`auctionhouse`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `mod_auctionhousebot_gold`;
+CREATE TABLE `mod_auctionhousebot_gold` (
+`id` int(11) NOT NULL DEFAULT '0' COMMENT 'Wallet ID',
+`gold` bigint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Gold in wallet',
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `mod_auctionhousebot_gold` (`id`, `gold`)
+VALUES (0, 20000);
+
 DROP TABLE IF EXISTS `mod_auctionhousebot_disabled_items`;
 CREATE TABLE `mod_auctionhousebot_disabled_items` (
   `item` mediumint(8) unsigned NOT NULL,

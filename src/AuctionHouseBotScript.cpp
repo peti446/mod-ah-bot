@@ -3,8 +3,8 @@
 */
 
 #include "ScriptMgr.h"
-#include "Player.h"
 #include "AuctionHouseBot.h"
+#include "Player.h"
 
 class AHBot_WorldScript : public WorldScript
 {
@@ -28,13 +28,22 @@ class AHBot_AuctionHouseScript : public AuctionHouseScript
 public:
     AHBot_AuctionHouseScript() : AuctionHouseScript("AHBot_AuctionHouseScript") { }
 
-    void OnBeforeAuctionHouseMgrSendAuctionSuccessfulMail(AuctionHouseMgr* /*auctionHouseMgr*/, AuctionEntry* /*auction*/, Player* owner, uint32& /*owner_accId*/, uint32& /*profit*/, bool& sendNotification, bool& updateAchievementCriteria, bool& /*sendMail*/) override
+    void OnBeforeAuctionHouseMgrSendAuctionSuccessfulMail(AuctionHouseMgr* /*auctionHouseMgr*/, AuctionEntry* auction, Player* owner, uint32& /*owner_accId*/, uint32& profit, bool& sendNotification, bool& updateAchievementCriteria, bool& /*sendMail*/) override
     {
         if (owner && owner->GetGUIDLow() == auctionbot->GetAHBplayerGUID())
         {
             sendNotification = false;
             updateAchievementCriteria = false;
+            if (auctionbot->GetUseAHBplayerGold())
+            {
+                auctionbot->AHBotChangeMoney(profit);
+            }
         }
+        else if (!owner && auction->owner == auctionbot->GetAHBplayerGUID() && auctionbot->GetUseAHBplayerGold())
+        {
+            auctionbot->AHBotChangeMoney(profit);
+        }
+
     }
 
     void OnBeforeAuctionHouseMgrSendAuctionExpiredMail(AuctionHouseMgr* /*auctionHouseMgr*/, AuctionEntry* /*auction*/, Player* owner, uint32& /*owner_accId*/, bool& sendNotification, bool& /*sendMail*/) override
@@ -43,10 +52,24 @@ public:
             sendNotification = false;
     }
 
-    void OnBeforeAuctionHouseMgrSendAuctionOutbiddedMail(AuctionHouseMgr* /*auctionHouseMgr*/, AuctionEntry* auction, Player* oldBidder, uint32& /*oldBidder_accId*/, Player* newBidder, uint32& newPrice, bool& /*sendNotification*/, bool& /*sendMail*/) override
+    void OnBeforeAuctionHouseMgrSendAuctionOutbiddedMail(AuctionHouseMgr* /*auctionHouseMgr*/, AuctionEntry* auction, Player* oldBidder, uint32& /*oldBidder_accId*/, Player* newBidder, uint32& newPrice, bool& sendNotification, bool& /*sendMail*/) override
     {
         if (oldBidder && !newBidder)
             oldBidder->GetSession()->SendAuctionBidderNotification(auction->GetHouseId(), auction->Id, auctionbot->GetAHBplayerGUID(), newPrice, auction->GetAuctionOutBid(), auction->item_template);
+
+
+        if (auctionbot->GetUseAHBplayerGold())
+        {
+            if (oldBidder && oldBidder->GetGUIDLow() == auctionbot->GetAHBplayerGUID() && newBidder != oldBidder)
+            {
+                sendNotification = false;
+                auctionbot->AHBotChangeMoney(auction->bid);
+            }
+            else if (!oldBidder && auction->bidder == auctionbot->GetAHBplayerGUID() && newBidder && newBidder->GetGUIDLow() != auctionbot->GetAHBplayerGUID())
+            {
+                auctionbot->AHBotChangeMoney(auction->bid);
+            }
+        }
     }
 
     void OnAuctionAdd(AuctionHouseObject* /*ah*/, AuctionEntry* auction) override

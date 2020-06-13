@@ -39,6 +39,15 @@
 #        Number of Items to Add/Remove from the AH during mass operations
 #    Default 200
 #
+#   AuctionHouseBot.NoGoldGeneration
+#       Makes the bot not generate any gold. It will keep track of sales and only buy from players if he has enough gold.
+#       The starting gold of the bot can be set by adding gold to the character
+#   Default 0 (False)
+#
+#   AuctionHouseBot.GoldWalletID
+#       Wallet ID to track money for buying or selling
+#   Default 0 
+#
 ###############################################################################
 
 AuctionHouseBot.DEBUG = 0
@@ -50,6 +59,8 @@ AuctionHouseBot.UseBuyPriceForBuyer = 0
 AuctionHouseBot.Account = 0
 AuctionHouseBot.GUID = 0
 AuctionHouseBot.ItemsPerCycle = 200
+AuctionHouseBot.NoGoldGeneration = 0
+AuctionHouseBot.GoldWalletID = 0
 
 ###############################################################################
 # AUCTION HOUSE BOT FILTERS PART 1
