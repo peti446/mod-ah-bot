@@ -651,15 +651,28 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
             sLog->outString("-------------------------------------------------");
         }
 
+
         // Check whether we do normal bid, or buyout
         if ((bidprice < auction->buyout) || (auction->buyout == 0))
         {
 
+            if (UseAHBplayerGold && !AHBotHasEnoughMoney(bidprice))
+            {
+                //We dont have enough money for this so get out of here
+                if (debug_Out)
+                {
+                    sLog->outString("-------------------------------------------------");
+                    sLog->outString("AHBuyer: AHBot Has not enough money for bid; Needed: %u has: %u", bidprice, AHBotGetCurrentMoney());
+                    sLog->outString("-------------------------------------------------");
+                }
+                continue;
+            }
+            bool alreadyBided = false;
             if (auction->bidder > 0)
             {
                 if (auction->bidder == AHBplayer->GetGUIDLow())
                 {
-                    //pl->ModifyMoney(-int32(price - auction->bid));
+                    alreadyBided = true;
                 }
                 else
                 {
@@ -667,18 +680,35 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
                     SQLTransaction trans = CharacterDatabase.BeginTransaction();
                     sAuctionMgr->SendAuctionOutbiddedMail(auction , bidprice, session->GetPlayer(), trans);
                     CharacterDatabase.CommitTransaction(trans);
-                    //pl->ModifyMoney(-int32(price));
                 }
            }
 
             auction->bidder = AHBplayer->GetGUIDLow();
             auction->bid = bidprice;
 
+            if (UseAHBplayerGold)
+            {
+                AHBotChangeMoney(-int32(bidprice - (alreadyBided ? currentprice : 0)));
+            }
+
             // Saving auction into database
             CharacterDatabase.PExecute("UPDATE auctionhouse SET buyguid = '%u',lastbid = '%u' WHERE id = '%u'", auction->bidder, auction->bid, auction->Id);
         }
         else
         {
+
+            if (UseAHBplayerGold && !AHBotHasEnoughMoney(auction->buyout))
+            {
+                //We dont have enough money for this so get out of here
+                if (debug_Out)
+                {
+                    sLog->outString("-------------------------------------------------");
+                    sLog->outString("AHBuyer: AHBot Has not enough money for buyout; Needed: %u has: %u", auction->buyout, AHBotGetCurrentMoney());
+                    sLog->outString("-------------------------------------------------");
+                }
+                continue;
+            }
+
             SQLTransaction trans = CharacterDatabase.BeginTransaction();
             //buyout
             if ((auction->bidder) && (AHBplayer->GetGUIDLow() != auction->bidder))
@@ -687,6 +717,13 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
             }
             auction->bidder = AHBplayer->GetGUIDLow();
             auction->bid = auction->buyout;
+
+            //Remove money for chatacter
+            if (UseAHBplayerGold)
+            {
+                AHBotChangeMoney(-int32(auction->buyout));
+            }
+                
 
             // Send mails to buyer & seller
             //sAuctionMgr->SendAuctionSalePendingMail(auction, trans);
@@ -742,6 +779,7 @@ void AuctionHouseBot::Update()
         addNewAuctionBuyerBotBid(&_AHBplayer, &NeutralConfig, &_session);
         _lastrun_n = _newrun;
     }
+
     sObjectAccessor->RemoveObject(&_AHBplayer);
 }
 
@@ -1331,7 +1369,8 @@ void AuctionHouseBot::InitializeConfiguration()
     AHBplayerAccount = sConfigMgr->GetIntDefault("AuctionHouseBot.Account", 0);
     AHBplayerGUID = sConfigMgr->GetIntDefault("AuctionHouseBot.GUID", 0);
     ItemsPerCycle = sConfigMgr->GetIntDefault("AuctionHouseBot.ItemsPerCycle", 200);
-
+    UseAHBplayerGold = sConfigMgr->GetBoolDefault("AuctionHouseBot.NoGoldGeneration", false);
+    WalletID = sConfigMgr->GetIntDefault("AuctionHouseBot.GoldWalletID", 0);
     //Begin Filters
 
     Vendor_Items = sConfigMgr->GetBoolDefault("AuctionHouseBot.VendorItems", false);
@@ -1663,6 +1702,39 @@ void AuctionHouseBot::Commands(uint32 command, uint32 ahMapID, uint32 col, char*
     default:
         break;
     }
+}
+
+
+void AuctionHouseBot::AHBotChangeMoney(int32 amount)
+{
+    //Update the databse
+    uint64 currentGold = AHBotGetCurrentMoney();
+    if (amount < 0)
+        currentGold = currentGold > uint32(-amount) ? currentGold + amount : 0;
+    else
+    {
+        if (currentGold < uint32((0x7FFFFFFFFFFFFFFF-1) - amount))
+            currentGold += + amount;
+    }
+
+    WorldDatabase.PExecute("INSERT INTO mod_auctionhousebot_gold (id, gold) values(%u, %u) ON DUPLICATE KEY UPDATE gold = %u", WalletID, currentGold, currentGold);
+}
+
+
+bool AuctionHouseBot::AHBotHasEnoughMoney(uint32 amount)
+{
+    return AHBotGetCurrentMoney() >= amount;
+}
+
+
+uint64 AuctionHouseBot::AHBotGetCurrentMoney()
+{
+    QueryResult querry = WorldDatabase.PQuery("SELECT gold FROM mod_auctionhousebot_gold WHERE id = '%u'", WalletID);
+    if (!querry || querry->GetRowCount() == 0)
+    {
+        return 0;
+    }
+    return querry->Fetch()->GetUInt64();
 }
 
 void AuctionHouseBot::LoadValues(AHBConfig *config)

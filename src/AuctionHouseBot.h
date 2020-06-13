@@ -1162,6 +1162,7 @@ private:
     uint32 AHBplayerAccount;
     uint32 AHBplayerGUID;
     uint32 ItemsPerCycle;
+    bool UseAHBplayerGold;
 
     //Begin Filters
 
@@ -1229,6 +1230,9 @@ private:
     time_t _lastrun_h;
     time_t _lastrun_n;
 
+    //Gold
+    uint32 WalletID;
+
     inline uint32 minValue(uint32 a, uint32 b) { return a <= b ? a : b; };
     void addNewAuctions(Player *AHBplayer, AHBConfig *config);
     void addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *config, WorldSession *session);
@@ -1251,7 +1255,11 @@ public:
     void DecrementItemCounts(AuctionEntry* ah, uint32 itemEntry);
     void IncrementItemCounts(AuctionEntry* ah);
     void Commands(uint32, uint32, uint32, char*);
+    bool GetUseAHBplayerGold() const { return UseAHBplayerGold; }
     uint32 GetAHBplayerGUID() { return AHBplayerGUID; };
+    void AHBotChangeMoney(int32 amount);
+    bool AHBotHasEnoughMoney(uint32 amount);
+    uint64 AHBotGetCurrentMoney();
 };
 
 #define auctionbot AuctionHouseBot::instance()
