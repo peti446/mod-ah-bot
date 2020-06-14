@@ -161,7 +161,7 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
     {
         if (debug_Out) sLog->outError("AHSeller: %u count", cnt);
         uint32 itemID = 0;
-        uint32 itemColor = 99;
+        //uint32 itemColor = 99;
         uint32 loopbreaker = 0;
         while (itemID == 0 && loopbreaker <= 50)
         {
@@ -1138,7 +1138,7 @@ void AuctionHouseBot::IncrementItemCounts(AuctionEntry* ah)
     }
 
     // get item prototype
-    ItemTemplate const* prototype = sObjectMgr->GetItemTemplate(ah->item_template);
+    //ItemTemplate const* prototype = sObjectMgr->GetItemTemplate(ah->item_template);
 
     AHBConfig *config;
 
@@ -1165,10 +1165,10 @@ void AuctionHouseBot::IncrementItemCounts(AuctionEntry* ah)
     }
     config->IncrementItems();
 }
-void AuctionHouseBot::DecrementItemCounts(AuctionEntry* ah, uint32 itemEntry)
+void AuctionHouseBot::DecrementItemCounts(AuctionEntry* ah ,uint32 /*itemEntry*/)
 {
     // get item prototype
-    ItemTemplate const* prototype = sObjectMgr->GetItemTemplate(itemEntry);
+    //ItemTemplate const* prototype = sObjectMgr->GetItemTemplate(itemEntry);
 
     AHBConfig *config;
 
@@ -1210,7 +1210,7 @@ void AuctionHouseBot::Commands(uint32 command, uint32 ahMapID, uint32 col, char*
         config = &NeutralConfig;
         break;
     }
-    std::string color;
+    /*std::string color;
     switch (col)
     {
     case AHB_GREY:
@@ -1236,7 +1236,7 @@ void AuctionHouseBot::Commands(uint32 command, uint32 ahMapID, uint32 col, char*
         break;
     default:
         break;
-    }
+    }*/
     switch (command)
     {
     case 0:     //ahexpire
