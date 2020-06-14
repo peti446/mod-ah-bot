@@ -1195,7 +1195,7 @@ void AuctionHouseBot::DecrementItemCounts(AuctionEntry* ah ,uint32 /*itemEntry*/
     }
     config->DecrementItems();
 }
-void AuctionHouseBot::Commands(uint32 command, uint32 ahMapID, uint32 col, char* args)
+void AuctionHouseBot::Commands(uint32 command, uint32 ahMapID, uint32 /*col*/, char* args)
 {
     AHBConfig *config = NULL;
     switch (ahMapID)
