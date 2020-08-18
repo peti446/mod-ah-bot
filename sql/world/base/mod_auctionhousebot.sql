@@ -1,4 +1,4 @@
--- --------------------------------------------------------
+git s-- --------------------------------------------------------
 -- Host:                         127.0.0.1
 -- Server version:               5.6.40-log - MySQL Community Server (GPL)
 -- Server OS:                    Win64
@@ -11,10 +11,6 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
-
--- Dumping database structure for haven_dev_world
-CREATE DATABASE IF NOT EXISTS `haven_dev_world` /*!40100 DEFAULT CHARACTER SET latin1 */;
-USE `haven_dev_world`;
 
 -- Dumping structure for table haven_dev_world.mod_ah_bot_weight_table
 CREATE TABLE IF NOT EXISTS `mod_ah_bot_weight_table` (
